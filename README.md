@@ -102,9 +102,6 @@ The frontend will be available at `http://localhost:5173`
 # Navigate to server directory
 cd server
 
-# Build Docker image
-docker build -t aadhaar-ocr-backend .
-
 # Or use Docker Compose (recommended)
 docker-compose up --build
 ```
