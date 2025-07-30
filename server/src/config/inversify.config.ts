@@ -1,9 +1,9 @@
 import 'reflect-metadata';
 import { Container } from 'inversify';
-import { IOcrService } from '../interfaces/IOcrService.js';
-import { OcrController } from '../controllers/ocrController.js';
-import { OcrService } from '../services/ocrService.js';
-import { TYPES } from '../types/types.js';
+import { IOcrService } from '../interfaces/IOcrService';
+import { OcrController } from '../controllers/ocrController';
+import { OcrService } from '../services/ocrService';
+import { TYPES } from '../types/types';
 
 
 const container = new Container();

@@ -1,5 +1,5 @@
 import { injectable } from 'inversify';
-import { IOcrService } from '../interfaces/IOcrService.js';
+import { IOcrService } from '../interfaces/IOcrService';
 import vision from '@google-cloud/vision';
 
 @injectable()

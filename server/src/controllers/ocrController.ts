@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import { IOcrService } from '../interfaces/IOcrService.js';
+import { IOcrService } from '../interfaces/IOcrService';
 import { TYPES } from '../types/types';
 import fs from 'fs';
 import { Request, Response } from 'express';
@@ -10,8 +10,24 @@ export class OcrController {
 
   async process(req: Request, res: Response): Promise<void> {
     try {
-      const frontPath = req.files['front'][0].path;
-      const backPath = req.files['back'][0].path;
+      if (
+        !req.files ||
+        typeof req.files !== 'object' ||
+        !('front' in req.files) ||
+        !('back' in req.files)
+      ) {
+        res.status(400).json({ error: 'Missing required files' });
+        return;
+      }
+
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      const frontPath = files['front']?.[0]?.path;
+      const backPath = files['back']?.[0]?.path;
+
+      if (!frontPath || !backPath) {
+        res.status(400).json({ error: 'Missing file paths' });
+        return;
+      }
 
       const frontText = await this.ocrService.extractText(frontPath);
       const backText = await this.ocrService.extractText(backPath);
