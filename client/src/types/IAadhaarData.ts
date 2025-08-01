@@ -1,7 +1,7 @@
 export interface IAadhaarData {
-  uid?: string;
+  aadhaar?: string;
   name?: string;
-  dateOfBirth?: string;
+  dob?: string;
   gender?: string;
   address?: string;
   fatherName?: string;

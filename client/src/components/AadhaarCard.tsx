@@ -1,6 +1,6 @@
 import React from 'react';
 import { User, Phone } from 'lucide-react';
-import type { IAadhaarData } from '../interfaces/IAadhaarData.ts';
+import type { IAadhaarData } from '../types/IAadhaarData.ts';
 
 interface AadhaarCardProps {
   data: IAadhaarData | null;
@@ -9,9 +9,9 @@ interface AadhaarCardProps {
 
 const AadhaarCard: React.FC<AadhaarCardProps> = ({ data, isLoading }) => {
   const sampleData: IAadhaarData = {
-    uid: "1234 XXXX 9012",
+    aadhaar: "1234 XXXX 9012",
     name: "Your Name",
-    dateOfBirth: "DD/MM/YYYY",
+    dob: "DD/MM/YYYY",
     gender: "Gender",
     address: "House No. XXX, Sector XX, Locality, State - 122XX1",
     fatherName: "Father's Name",
@@ -66,11 +66,13 @@ const AadhaarCard: React.FC<AadhaarCardProps> = ({ data, isLoading }) => {
 
             <div>
               <div className="text-xs text-gray-600">जन्म तारीख / DOB:</div>
-              <div className="text-sm text-black">{cardData.dateOfBirth}</div>
+              <div className="text-sm text-black">{cardData.dob}</div>
             </div>
 
             <div>
-              <div className="text-xs text-gray-600">पुरुष / {cardData.gender}</div>
+              <div className="text-xs text-gray-600">
+                {cardData.gender === 'Male' ? 'पुरुष' : 'महिला'} / {cardData.gender}
+              </div>
             </div>
 
             {cardData.fatherName && (
@@ -99,7 +101,7 @@ const AadhaarCard: React.FC<AadhaarCardProps> = ({ data, isLoading }) => {
 
         <div className="px-3 py-0 mt-[-10px]">
           <div className="text-xl font-bold text-black tracking-wider text-center">
-            {cardData.uid}
+            {cardData.aadhaar}
           </div>
         </div>
 

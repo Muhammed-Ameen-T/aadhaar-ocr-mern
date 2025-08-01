@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import multer from 'multer';
 import container from '../config/inversify.config';
-import { OcrController } from '../controllers/ocrController';
+import { IOcrController } from '../interfaces/controllers/IOcrController';
+import { TYPES } from '../types/types';
 
 const router = Router();
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: 'src/uploads/' });
 
-const controller = container.get<OcrController>(OcrController);
+const controller = container.get<IOcrController>(TYPES.OcrController);
 
 router.post(
   '/extract',

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, Copy, Check } from 'lucide-react';
+import type { AadhaarResponse } from '../types/aadhaar';
 
 interface JsonDisplayProps {
-  data: any;
+  data: AadhaarResponse | null;
 }
 
 const JsonDisplay: React.FC<JsonDisplayProps> = ({ data }) => {
@@ -69,9 +70,9 @@ const JsonDisplay: React.FC<JsonDisplayProps> = ({ data }) => {
                 <div>
                   <span className="font-medium">Status:</span> {data.status || 'N/A'}
                 </div>
-                <div>
+                {/* <div>
                   <span className="font-medium">Confidence:</span> {data.confidence || 'N/A'}
-                </div>
+                </div> */}
               </div>
               <p className="text-xs text-gray-500 mt-2">
                 Click to expand full JSON response
