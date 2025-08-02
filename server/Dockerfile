@@ -42,3 +42,4 @@ EXPOSE 3000
 # Specify the command to run your application
 # The start script now correctly points to the built JS file
 CMD ["npm", "run", "start"]
+# --- Stage 3: Development Image ---
