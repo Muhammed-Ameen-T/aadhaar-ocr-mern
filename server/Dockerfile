@@ -7,6 +7,10 @@ WORKDIR /app
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
+# Install the build tools necessary for compiling native dependencies
+# This is the key change to fix the installation of packages like @google-cloud/vision
+RUN apk add --no-cache python3 g++ make
+
 # Install both production and development dependencies, needed for 'tsc'
 RUN npm install
 
@@ -24,7 +28,6 @@ FROM node:22-alpine AS production
 WORKDIR /app
 
 # Copy only the necessary files from the build stage
-# Copy package files to install production dependencies
 COPY --from=build /app/package*.json ./
 
 # Install only production dependencies
@@ -42,4 +45,3 @@ EXPOSE 3000
 # Specify the command to run your application
 # The start script now correctly points to the built JS file
 CMD ["npm", "run", "start"]
-# --- Stage 3: Development Image ---
