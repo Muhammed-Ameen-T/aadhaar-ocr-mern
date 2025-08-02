@@ -1,16 +1,20 @@
-# --- Stage 1: Build Dependencies ---
-# This stage installs all dependencies and then discards the dev ones.
-FROM node:22-alpine AS dependencies
+# --- Stage 1: Build Dependencies and Transpile TypeScript ---
+FROM node:22-alpine AS build
 
 # Set the working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json to the container
+# Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Install both production and development dependencies
-# We do this here to leverage Docker's caching layer
+# Install both production and development dependencies, needed for 'tsc'
 RUN npm install
+
+# Copy all source files
+COPY . .
+
+# Run the TypeScript build to create the 'dist' directory
+RUN npm run build
 
 # --- Stage 2: Production Image ---
 # This stage creates the final, lean production image.
@@ -19,12 +23,15 @@ FROM node:22-alpine AS production
 # Set the working directory
 WORKDIR /app
 
-# Copy only the production dependencies from the 'dependencies' stage
-COPY --from=dependencies /app/package*.json ./
+# Copy only the necessary files from the build stage
+# Copy package files to install production dependencies
+COPY --from=build /app/package*.json ./
+
+# Install only production dependencies
 RUN npm install --omit=dev
 
-# Copy your application source code from the host machine
-COPY . .
+# Copy the built TypeScript files from the 'dist' folder
+COPY --from=build /app/dist ./dist
 
 # Set the environment variable to production
 ENV NODE_ENV=production
@@ -33,5 +40,5 @@ ENV NODE_ENV=production
 EXPOSE 3000
 
 # Specify the command to run your application
-# Use the start script defined in your package.json
+# The start script now correctly points to the built JS file
 CMD ["npm", "run", "start"]
