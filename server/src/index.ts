@@ -7,7 +7,7 @@ dotenv.config();
 
 const app = express();
 app.use(cors({
-  origin: process.env.ORIGIN || 'http://localhost:5173',
+  origin: 'https://aadhaar.muhammedameen.site',
   credentials: true
 }));
 app.use(express.json());
