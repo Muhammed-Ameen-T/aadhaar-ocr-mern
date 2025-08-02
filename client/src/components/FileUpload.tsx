@@ -5,6 +5,7 @@ import { useMutation } from '@tanstack/react-query';
 import { processAadhaarOcr } from '../services/ocrService';
 import { toast } from 'react-toastify';
 import type { AadhaarResponse } from '../types/aadhaar';
+import { AxiosError } from 'axios';
 
 interface FileUploadProps {
   title: string;
@@ -37,19 +38,28 @@ const FileUpload: React.FC<FileUploadProps> = ({ title, onOcrResult }) => {
       return processAadhaarOcr(frontFile, backFile);
     },
     onSuccess: (data) => {
-      if(data.success) {
+      if (data.success) {
         toast.success('✅ Aadhaar OCR processed successfully!');
+      } else {
+        toast.error(`⚠️ OCR failed: ${data.message}`);
       }
 
-      if (onOcrResult) {
-        onOcrResult(data); 
-      }
+      onOcrResult?.(data);
     },
-    onError: (error) => {
-      toast.error('❌ OCR processing failed. Please try again.');
-      setError(error.message || 'OCR processing failed');
+    onError: (error: unknown) => {
+      let message = 'OCR processing failed';
+
+      if (error instanceof AxiosError) {
+        message = error.response?.data?.message || message;
+      } else if (error instanceof Error) {
+        message = error.message;
+      }
+
+      toast.error(`❌ ${message}`);
+      setError(message);
     },
   });
+
 
   const validateFile = (file: File): boolean => {
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];

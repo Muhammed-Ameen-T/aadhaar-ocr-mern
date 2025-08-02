@@ -19,21 +19,9 @@ export const processAadhaarOcr = async (
       },
     });
 
-    console.log("🚀 ~ processAadhaarOcr ~ response.data:", response.data)
     return response.data;
   } catch (error) {
     handleAxiosError(error, OCR_MESSAGES.PROCESSING_FAILED);
-     return {
-      success: false,
-      status: 500,
-      message: OCR_MESSAGES.PROCESSING_FAILED,
-      data: {
-        name: '',
-        dob: '',
-        gender: 'Other',
-        aadhaar: '',
-        address: '',
-      },
-    };
+    throw error; 
   }
 };

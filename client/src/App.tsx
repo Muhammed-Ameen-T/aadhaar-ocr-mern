@@ -24,7 +24,8 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
-       <ToastContainer
+      {/* Header */}
+      <ToastContainer
         position="top-right"
         autoClose={3000}
         hideProgressBar={false}
@@ -35,7 +36,6 @@ function App() {
         pauseOnHover
         theme="light"
       />
-      {/* Header */}
       <AppHeader />
 
       {/* Main Content */}
