@@ -45,17 +45,17 @@ export class OcrService implements IOcrService {
       rawAddress = rawAddress.slice(0, cutoff).trim();
     }
 
-    // Step 5: Father name logic
-    let fatherName = '';
+    // Step 5: Guardian name logic
+    let guardianName = '';
     const sOregex = /S\/O\s*([\w\s.]+)/i;
     const matchSO = backText.match(sOregex);
     if (matchSO) {
-      fatherName = matchSO[1].trim();
+      guardianName = matchSO[1].trim();
     } else {
       // If S/O not found, extract first word block before first comma as fallback
       const addressParts = rawAddress.split(',');
       if (addressParts.length > 0 && /^[A-Za-z\s.]+$/.test(addressParts[0])) {
-        fatherName = addressParts[0].trim();
+        guardianName = addressParts[0].trim();
         rawAddress = addressParts.slice(1).join(',').trim();
       }
     }
@@ -66,7 +66,7 @@ export class OcrService implements IOcrService {
       gender,
       aadhaar,
       address: rawAddress,
-      fatherName
+      guardianName
     };
   }
 

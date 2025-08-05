@@ -14,7 +14,7 @@ const AadhaarCard: React.FC<AadhaarCardProps> = ({ data, isLoading }) => {
     dob: "DD/MM/YYYY",
     gender: "Gender",
     address: "House No. XXX, Sector XX, Locality, State - 122XX1",
-    fatherName: "Father's Name",
+    guardianName: "Guardian's Name",
     mobileNumber: "+91 98XX5 4XXX0",
   };
 
@@ -75,10 +75,10 @@ const AadhaarCard: React.FC<AadhaarCardProps> = ({ data, isLoading }) => {
               </div>
             </div>
 
-            {cardData.fatherName && (
+            {cardData.guardianName && (
               <div>
-                <div className="text-xs text-gray-600">पिता का नाम / Father's Name:</div>
-                <div className="text-sm text-black">{cardData.fatherName}</div>
+                <div className="text-xs text-gray-600">पिता का नाम / Guardian's Name:</div>
+                <div className="text-sm text-black">{cardData.guardianName}</div>
               </div>
             )}
           </div>

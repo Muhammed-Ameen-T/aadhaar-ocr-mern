@@ -4,6 +4,6 @@ export interface IAadhaarData {
   dob?: string;
   gender?: string;
   address?: string;
-  fatherName?: string;
+  guardianName?: string;
   mobileNumber?: string;
 }
