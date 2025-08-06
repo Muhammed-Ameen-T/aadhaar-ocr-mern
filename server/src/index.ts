@@ -1,18 +1,22 @@
 import 'reflect-metadata';
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
-import ocrRoutes from './routes/ocr.routes';
-dotenv.config();
+import ocrRoutes from './routes/ocr.routes'
+import { errorHandler } from './middlewares/errorHandler.middleware';
+import { SuccessMsg } from './utils/constants/commonSuccessMsg.constants';
+import { env } from './config/env.config';
+
 
 const app = express();
 app.use(cors({
-  origin: 'https://aadhaar.muhammedameen.site',
+  origin: env.CLIENT_ORIGIN || 'http://localhost:5173',
   credentials: true
 }));
 app.use(express.json());
 
-app.get('/ping', (_, res) => res.send('Server is up!'));
 app.use('/api/aadhaar', ocrRoutes);
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+app.use(errorHandler);
+
+const PORT = env.PORT;
+app.listen(PORT, () => console.log(`${SuccessMsg.SERVER_RUNNING} ${PORT}`));

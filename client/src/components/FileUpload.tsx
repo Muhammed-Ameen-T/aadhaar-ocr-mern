@@ -4,12 +4,12 @@ import ImageCropper from './ImageCropping';
 import { useMutation } from '@tanstack/react-query';
 import { processAadhaarOcr } from '../services/ocrService';
 import { toast } from 'react-toastify';
-import type { AadhaarResponse } from '../types/aadhaar';
+import type { AadhaarResponse } from '../types/IAadhaar';
 import { AxiosError } from 'axios';
 
 interface FileUploadProps {
   title: string;
-  onOcrResult?: (data: AadhaarResponse) => void; // Optional callback to pass OCR result to parent
+  onOcrResult?: (data: AadhaarResponse) => void;
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({ title, onOcrResult }) => {
@@ -29,7 +29,6 @@ const FileUpload: React.FC<FileUploadProps> = ({ title, onOcrResult }) => {
   const frontFileInputRef = useRef<HTMLInputElement>(null);
   const backFileInputRef = useRef<HTMLInputElement>(null);
 
-  // Mutation for OCR processing
   const mutation = useMutation({
     mutationFn: () => {
       if (!frontFile || !backFile) {
@@ -38,7 +37,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ title, onOcrResult }) => {
       return processAadhaarOcr(frontFile, backFile);
     },
     onSuccess: (data) => {
-      if (data.success) {
+      if (data.status) {
         toast.success('✅ Aadhaar OCR processed successfully!');
       } else {
         toast.error(`⚠️ OCR failed: ${data.message}`);
@@ -60,10 +59,9 @@ const FileUpload: React.FC<FileUploadProps> = ({ title, onOcrResult }) => {
     },
   });
 
-
   const validateFile = (file: File): boolean => {
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxSize = 5 * 1024 * 1024;
 
     if (!allowedTypes.includes(file.type)) {
       setError('Only JPG, JPEG, and PNG files are allowed');
@@ -158,7 +156,6 @@ const FileUpload: React.FC<FileUploadProps> = ({ title, onOcrResult }) => {
     }
   };
 
-  // Handle form submission to trigger OCR processing
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!frontFile || !backFile) {
@@ -172,7 +169,6 @@ const FileUpload: React.FC<FileUploadProps> = ({ title, onOcrResult }) => {
     <div className="w-full space-y-4">
       <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
 
-      {/* Front Image Upload */}
       <div
         className={`relative border-2 border-dashed rounded-2xl p-6 transition-all duration-200 ${
           dragActive.front
@@ -227,10 +223,6 @@ const FileUpload: React.FC<FileUploadProps> = ({ title, onOcrResult }) => {
               </div>
             ) : mutation.isSuccess ? (
               <div className="space-y-4">
-                {/* <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mx-auto">
-                  <Check className="h-6 w-6 text-green-600" />
-                </div>
-                <p className="text-base text-green-600 font-medium">Front image uploaded!</p> */}
                 <div className="relative group">
                   <img
                     src={croppedImageUrl.front}
@@ -271,7 +263,6 @@ const FileUpload: React.FC<FileUploadProps> = ({ title, onOcrResult }) => {
         )}
       </div>
 
-      {/* Back Image Upload */}
       <div
         className={`relative border-2 border-dashed rounded-2xl p-6 transition-all duration-200 ${
           dragActive.back
@@ -326,10 +317,6 @@ const FileUpload: React.FC<FileUploadProps> = ({ title, onOcrResult }) => {
               </div>
             ) : mutation.isSuccess ? (
               <div className="space-y-4">
-                {/* <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mx-auto">
-                  <Check className="h-6 w-6 text-green-600" />
-                </div>
-                <p className="text-base text-green-600 font-medium">Back image uploaded!</p> */}
                 <div className="relative group">
                   <img
                     src={croppedImageUrl.back}
@@ -379,7 +366,6 @@ const FileUpload: React.FC<FileUploadProps> = ({ title, onOcrResult }) => {
         </div>
       )}
 
-      {/* Submit Button */}
       <div className="flex justify-center">
         <button
           onClick={handleSubmit}
@@ -401,7 +387,6 @@ const FileUpload: React.FC<FileUploadProps> = ({ title, onOcrResult }) => {
         </button>
       </div>
 
-      {/* Image Cropper Modal */}
       {showCropper && originalFile && (
         <ImageCropper
           image={originalFile}

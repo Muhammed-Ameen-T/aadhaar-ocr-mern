@@ -1,10 +1,10 @@
+import { IAadhaar } from '../IAadhaar';
+
+/**
+ * @interface IOcrService
+ * @description Defines the contract for the OCR service.
+ */
 export interface IOcrService {
+  processAadhaar(frontPath: string, backPath: string): Promise<IAadhaar>;
   extractText(filePath: string): Promise<string>;
-  extractDetails(frontText: string, backText: string): {
-    name: string;
-    dob: string;
-    gender: string;
-    aadhaar: string;
-    address: string;
-  };
 }

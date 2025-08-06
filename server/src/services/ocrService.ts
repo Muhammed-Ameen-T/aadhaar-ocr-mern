@@ -1,73 +1,76 @@
 import { injectable } from 'inversify';
 import { IOcrService } from '../interfaces/services/IOcrService';
+import { IAadhaar } from '../interfaces/IAadhaar';
 import vision from '@google-cloud/vision';
+import { CustomError } from '../utils/errors/custom.error';
+import fs from 'fs/promises';
+import { isAadhaarCardContentValid } from '../utils/aadhaarValidator.utils';
+import { parseAadhaarData } from '../utils/dataParse.utils';
+import { isValidAadhaar } from 'aadhaar-validator-ts';
+import { ErrorMsg } from '../utils/constants/commonErrorMsg.constants';
+import { HttpResCode } from '../utils/constants/httpResponseCode.utils';
 
 @injectable()
 export class OcrService implements IOcrService {
   private client = new vision.ImageAnnotatorClient();
 
-  async extractText(filePath: string): Promise<string> {
+  /**
+   * @method processAadhaar
+   * @description Orchestrates the entire Aadhaar OCR process from image validation to data extraction.
+   * @param {string} frontPath The file path of the front side Aadhaar image.
+   * @param {string} backPath The file path of the back side Aadhaar image.
+   * @returns {Promise<IAadhaar>} A promise that resolves to the extracted Aadhaar data.
+   */
+  public async processAadhaar(frontPath: string, backPath: string): Promise<IAadhaar> {
+    try {
+      // Step 1: Perform high-quality OCR first on both images
+      const [frontText, backText] = await Promise.all([
+        this.extractText(frontPath),
+        this.extractText(backPath),
+      ]);
+
+      // Step 2: Validate Aadhaar card content using the high-quality OCR text
+      if (!isAadhaarCardContentValid(frontText, backText)) {
+        throw new CustomError(ErrorMsg.INVALID_AADHAAR_CONTENT, HttpResCode.BAD_GATEWAY);
+      }
+
+      // Step 3: Parse the extracted data
+      const parsedData = parseAadhaarData(frontText, backText);
+
+      const isValid = isValidAadhaar(parsedData.uid_front);
+      if (!isValid) {
+        throw new CustomError(ErrorMsg.ADHAAR_NOT_VALID, HttpResCode.BAD_REQUEST);
+      }
+
+      // Step 4: Validate UID consistency
+      const isUidSame = parsedData.uid_front === parsedData.uid_back;
+      if (!isUidSame) {
+        throw new CustomError(ErrorMsg.UID_MISMATCH, HttpResCode.BAD_GATEWAY);
+      }
+
+      return {
+        name: parsedData.name,
+        dob: parsedData.dob,
+        gender: parsedData.gender,
+        uid: parsedData.uid_front,
+        address: parsedData.address,
+        pincode: parsedData.pincode,
+        age_band: parsedData.age_band,
+        isUidSame,
+      };
+    } catch (error) {
+      throw error;
+    } finally {
+      try {
+        await Promise.all([fs.unlink(frontPath), fs.unlink(backPath)]);
+      } catch (fileErr) {
+        console.warn(ErrorMsg.FAILED_TO_CLEAN, { error: fileErr });
+      }
+    }
+  }
+
+  public async extractText(filePath: string): Promise<string> {
     const [result] = await this.client.textDetection(filePath);
     return result.fullTextAnnotation?.text || '';
   }
-
-  extractDetails(frontText: string, backText: string) {
-    const lines = frontText.split('\n').map(line => line.trim()).filter(Boolean);
-
-    // Step 1: Get clean DOB index, ignoring Aadhaar issue dates
-    const dobIndex = lines.findIndex(line =>
-      /\d{2}\/\d{2}\/\d{4}/.test(line) && !/issued|aadhaar/i.test(line)
-    );
-
-    const name = dobIndex > 0 ? lines[dobIndex - 1] : '';
-    const dob = dobIndex >= 0 ? (lines[dobIndex].match(/\d{2}\/\d{2}\/\d{4}/)?.[0] || '') : '';
-
-    // Step 2: Get gender after DOB
-    const genderLine = dobIndex + 1 < lines.length ? lines[dobIndex + 1] : '';
-    const gender =
-      /female/i.test(genderLine) ? 'Female' :
-      /male/i.test(genderLine) ? 'Male' :
-      '';
-
-    // Step 3: Aadhaar extraction
-    const aadhaar = frontText.match(/\d{4}\s\d{4}\s\d{4}/)?.[0] || '';
-
-    // Step 4: Clean address block
-    let rawAddress = backText.replace(/\n/g, ' ').trim();
-
-    // Remove UIDAI intro text (in Hindi or English)
-    rawAddress = rawAddress.replace(/.*(Address[:\-]?\s*)/i, '').trim();
-
-    // Extract pincode and cut the tail after that
-    const pinMatch = rawAddress.match(/\b\d{6}\b/);
-    if (pinMatch) {
-      const cutoff = rawAddress.indexOf(pinMatch[0]) + pinMatch[0].length;
-      rawAddress = rawAddress.slice(0, cutoff).trim();
-    }
-
-    // Step 5: Guardian name logic
-    let guardianName = '';
-    const sOregex = /S\/O\s*([\w\s.]+)/i;
-    const matchSO = backText.match(sOregex);
-    if (matchSO) {
-      guardianName = matchSO[1].trim();
-    } else {
-      // If S/O not found, extract first word block before first comma as fallback
-      const addressParts = rawAddress.split(',');
-      if (addressParts.length > 0 && /^[A-Za-z\s.]+$/.test(addressParts[0])) {
-        guardianName = addressParts[0].trim();
-        rawAddress = addressParts.slice(1).join(',').trim();
-      }
-    }
-
-    return {
-      name,
-      dob,
-      gender,
-      aadhaar,
-      address: rawAddress,
-      guardianName
-    };
-  }
-
 }

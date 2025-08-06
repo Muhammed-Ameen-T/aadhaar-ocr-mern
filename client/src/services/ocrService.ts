@@ -2,7 +2,7 @@ import api from '../config/axios.config';
 import { OCR_ENDPOINTS } from '../constants/endpoints.ts';
 import { handleAxiosError } from '../utils/handleError.utils';
 import { OCR_MESSAGES } from '../constants/messages';
-import type { AadhaarResponse } from '../types/aadhaar.ts';
+import type { AadhaarResponse } from '../types/IAadhaar.ts';
 
 export const processAadhaarOcr = async (
   frontFile: File,
@@ -22,6 +22,6 @@ export const processAadhaarOcr = async (
     return response.data;
   } catch (error) {
     handleAxiosError(error, OCR_MESSAGES.PROCESSING_FAILED);
-    throw error; 
+    throw error;
   }
 };

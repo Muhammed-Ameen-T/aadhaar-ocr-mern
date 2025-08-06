@@ -1,30 +1,24 @@
 import { useState } from 'react';
 import { FileText, Shield } from 'lucide-react';
-import JsonDisplay from './components/JsonDisplay.tsx';
 import FileUpload from './components/FileUpload.tsx';
 import AadhaarCard from './components/AadhaarCard.tsx';
-import type { IAadhaarData } from './types/IAadhaarData.ts';
 import AppHeader from './components/Header.tsx';
 import AppFooter from './components/Footer.tsx';
-import type { AadhaarResponse } from './types/aadhaar.ts';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import type { AadhaarResponse, IAadhaar } from './types/IAadhaar.ts';
 
 function App() {
-  const [aadhaarData, setAadhaarData] = useState<IAadhaarData | null>(null);
-  const [jsonResponse, setJsonResponse] = useState<AadhaarResponse | null>(null);
+  const [aadhaarData, setAadhaarData] = useState<IAadhaar | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Handle OCR result from FileUpload component
   const handleOcrResult = (data: AadhaarResponse) => {
-    setJsonResponse(data);
-    setAadhaarData(data.data|| null);
+    setAadhaarData(data.data || null);
     setIsProcessing(false);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
-      {/* Header */}
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -38,10 +32,8 @@ function App() {
       />
       <AppHeader />
 
-      {/* Main Content */}
       <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid lg:grid-cols-2 gap-8">
-          {/* Left Section - Upload */}
           <div className="space-y-6">
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
               <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
@@ -56,10 +48,8 @@ function App() {
                   handleOcrResult(data);
                 }}
               />
-
             </div>
 
-            {/* Features */}
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Key Features</h3>
               <div className="space-y-3">
@@ -83,14 +73,11 @@ function App() {
             </div>
           </div>
 
-          {/* Right Section - Results */}
           <div className="space-y-6">
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
               <AadhaarCard data={aadhaarData} isLoading={isProcessing} />
-              <JsonDisplay data={jsonResponse} />
             </div>
 
-            {/* Processing Info */}
             {(isProcessing || aadhaarData) && (
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
                 <div className="flex items-start space-x-3">
@@ -118,7 +105,6 @@ function App() {
         </div>
       </main>
 
-      {/* Footer */}
       <AppFooter />
     </div>
   );

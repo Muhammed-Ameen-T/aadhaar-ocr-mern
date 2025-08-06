@@ -1,4 +1,4 @@
-import type { IAadhaarData } from "./IAadhaarData";
+import type { IAadhaarData } from "./IAadhaar";
 
 export interface AadhaarResponse {
   success: boolean;
