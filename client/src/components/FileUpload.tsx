@@ -30,34 +30,40 @@ const FileUpload: React.FC<FileUploadProps> = ({ title, onOcrResult }) => {
   const backFileInputRef = useRef<HTMLInputElement>(null);
 
   const mutation = useMutation({
-    mutationFn: () => {
-      if (!frontFile || !backFile) {
-        throw new Error('Both front and back images are required');
-      }
-      return processAadhaarOcr(frontFile, backFile);
-    },
-    onSuccess: (data) => {
-      if (data.status) {
-        toast.success('✅ Aadhaar OCR processed successfully!');
-      } else {
-        toast.error(`⚠️ OCR failed: ${data.message}`);
-      }
+  mutationFn: () => {
+    if (!frontFile || !backFile) {
+      throw new Error('Both front and back images are required');
+    }
+    // Clear any previous error before starting the mutation
+    setError(''); 
+    return processAadhaarOcr(frontFile, backFile);
+  },
+  onSuccess: (data) => {
+    if (data.status) {
+      toast.success('✅ Aadhaar OCR processed successfully!');
+      // Clear the error state on success
+      setError(''); 
+    } else {
+      toast.error(`⚠️ OCR failed: ${data.message}`);
+      // Set the error state if the API response indicates failure
+      setError(data.message);
+    }
+    onOcrResult?.(data);
+  },
+  onError: (error: unknown) => {
+    let message = 'OCR processing failed';
 
-      onOcrResult?.(data);
-    },
-    onError: (error: unknown) => {
-      let message = 'OCR processing failed';
+    if (error instanceof AxiosError) {
+      message = error.response?.data?.message || message;
+    } else if (error instanceof Error) {
+      message = error.message;
+    }
 
-      if (error instanceof AxiosError) {
-        message = error.response?.data?.message || message;
-      } else if (error instanceof Error) {
-        message = error.message;
-      }
-
-      toast.error(`❌ ${message}`);
-      setError(message);
-    },
-  });
+    toast.error(`❌ ${message}`);
+    // Set the error state on a mutation error
+    setError(message);
+  },
+});
 
   const validateFile = (file: File): boolean => {
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];

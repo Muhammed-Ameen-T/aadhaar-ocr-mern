@@ -23,18 +23,15 @@ export class OcrService implements IOcrService {
    */
   public async processAadhaar(frontPath: string, backPath: string): Promise<IAadhaar> {
     try {
-      // Step 1: Perform high-quality OCR first on both images
       const [frontText, backText] = await Promise.all([
         this.extractText(frontPath),
         this.extractText(backPath),
       ]);
 
-      // Step 2: Validate Aadhaar card content using the high-quality OCR text
       if (!isAadhaarCardContentValid(frontText, backText)) {
         throw new CustomError(ErrorMsg.INVALID_AADHAAR_CONTENT, HttpResCode.BAD_GATEWAY);
       }
 
-      // Step 3: Parse the extracted data
       const parsedData = parseAadhaarData(frontText, backText);
 
       const isValid = isValidAadhaar(parsedData.uid_front);
@@ -42,8 +39,8 @@ export class OcrService implements IOcrService {
         throw new CustomError(ErrorMsg.ADHAAR_NOT_VALID, HttpResCode.BAD_REQUEST);
       }
 
-      // Step 4: Validate UID consistency
       const isUidSame = parsedData.uid_front === parsedData.uid_back;
+
       if (!isUidSame) {
         throw new CustomError(ErrorMsg.UID_MISMATCH, HttpResCode.BAD_GATEWAY);
       }
