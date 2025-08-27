@@ -11,7 +11,7 @@ import { ErrorMsg } from '../utils/constants/commonErrorMsg.constants';
 
 @injectable()
 export class OcrController implements IOcrController {
-  constructor(@inject(TYPES.OcrService) private ocrService: IOcrService) {}
+  constructor(@inject(TYPES.OcrService) private _ocrService: IOcrService) {}
 
   /**
    * @method process
@@ -30,7 +30,7 @@ export class OcrController implements IOcrController {
     }
 
     try {
-      const result = await this.ocrService.processAadhaar(frontFile.path, backFile.path);
+      const result = await this._ocrService.processAadhaar(frontFile.path, backFile.path);
       sendResponse(res, HttpResCode.OK, SuccessMsg.PARSING_SUCCESS, result);
     } catch (error) {
       next(error);
